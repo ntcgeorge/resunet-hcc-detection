@@ -3,3 +3,5 @@
 *.dicom
 *.nii
 *.jpg
+*.py[cod]
+^config*
