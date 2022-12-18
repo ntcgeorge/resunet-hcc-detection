@@ -1,0 +1,7 @@
+*.ipynb
+*.png
+*.dicom
+*.nii
+*.jpg
+*.py[cod]
+^config*
