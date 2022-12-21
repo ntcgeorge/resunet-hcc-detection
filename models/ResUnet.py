@@ -3,7 +3,7 @@ import torch.nn as nn
 from .modules import ResidualBlock, Upsample
 
 class ResUnet(nn.Module):
-    def __init__(self, channel, filters=[64, 128, 256, 512]):
+    def __init__(self, channel, class_num, filters=[64, 128, 256, 512]):
         super().__init__()
 
         self.input_layer = nn.Sequential(
@@ -32,8 +32,7 @@ class ResUnet(nn.Module):
         self.up_residual_conv3 = ResidualBlock(filters[1] + filters[0], filters[0], 1, 1)
 
         self.output_layer = nn.Sequential(
-            nn.Conv2d(filters[0], 1, 1, 1),
-            nn.Softmax()
+            nn.Conv2d(filters[0], class_num, 1, 1),
         )
 
     def forward(self, x):
@@ -62,5 +61,7 @@ class ResUnet(nn.Module):
         output = self.output_layer(x10)
 
         return output
+        
+        
         
         
