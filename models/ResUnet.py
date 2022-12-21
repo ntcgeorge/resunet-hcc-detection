@@ -37,13 +37,13 @@ class ResUnet(nn.Module):
         )
 
     def forward(self, x):
-        # Encode
+        # Encoder
         x1 = self.input_layer(x) + self.input_skip(x)
         x2 = self.residual_conv_1(x1)
         x3 = self.residual_conv_2(x2)
         # Bridge
         x4 = self.bridge(x3)
-        # Decode
+        # Decoder
         x4 = self.upsample_1(x4)
         x5 = torch.cat([x4, x3], dim=1)
 

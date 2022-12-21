@@ -31,8 +31,4 @@ class Upsample(nn.Module):
         )
     
     def forward(self, x):
-<<<<<<< HEAD
         return self.upsample(x)
-=======
-        return self.upsmaple(x)
->>>>>>> 12ee3b78ce8143e4717d55a72d6a32f4e11ae369
