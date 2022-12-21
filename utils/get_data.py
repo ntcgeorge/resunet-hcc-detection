@@ -2,7 +2,7 @@
 # Author: Lu Jiqiao, George
 # Department : Polyu HTI
 # ==============================================================================
-'''This util provides static method for handling datasets and creat data pipeline'''
+'''This script create data as png format for traning and validation'''
 
 import os
 from glob import glob
@@ -74,12 +74,11 @@ def load_save(ct_paths, seg_paths, ct_dest, seg_dest) -> None:
         seg_scan = windowed(seg_scan, "seg")
         # name = os.path.split(cp)[1]
         # index = int(re.split("[-.]", name)[1])
-        if index >= 100: break
         for i in range(len(ct_scan)):
             ct = ct_scan[i][...,np.newaxis]
-            cv2.imwrite(os.path.join(ct_dest, "ct_image%04d.jpg" % index), ct)
+            cv2.imwrite(os.path.join(ct_dest, "ct_image%05d.png" % index), ct)
             seg = seg_scan[i][...,np.newaxis]
-            cv2.imwrite(os.path.join(seg_dest, "ct_seg%04d.jpg" % index), seg)
+            cv2.imwrite(os.path.join(seg_dest, "ct_seg%05d.png" % index), seg)
             index += 1
         # os.remove(cp)
         # os.remove(sp)
@@ -101,6 +100,7 @@ def seg_filter(ct:np.array, seg:np.array) -> np.array:
 
     return ct, seg
 def main():
+    move_vol("ct")
     ct_file = glob("./data/ct/*")
     seg_file = glob("./data/seg/*")
     ct_file.sort(key=lambda x:int(re.split(r"[.-]", x)[2]))
