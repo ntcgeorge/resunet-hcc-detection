@@ -4,8 +4,9 @@ import nibabel as nib
 
 import torch
 from torch.utils.data import Dataset
-import torchvision
+from PIL import Image
 from torchvision.io import read_image
+from torchvision import transforms
 import numpy as np
 from glob import glob
 import random
@@ -17,22 +18,33 @@ L = 30
 IMG_LENGTH = 48
 class LiTDataset(Dataset):
 
-    def __init__(self, ct_dir="./data/image", seg_dir="./data/label") -> None:
+    def __init__(self, ct_dir="./data/image", seg_dir="./data/label", augmentation=False) -> None:
         self.ct_dir = glob(ct_dir + "/*")
         self.ct_dir.sort()
         self.seg_dir = glob(seg_dir + "/*")
         self.seg_dir.sort()
+        self.transform = transforms.Compose([
+            transforms.RandomHorizontalFlip(0.5),
+            transforms.RandomRotation(15)
+            ])
+        self.augmentation = augmentation
     
-    def __getitem__(self, index) -> tuple(torch.Tensor):
+    def __getitem__(self, index):
         
         ct_path = self.ct_dir[index]
         seg_path = self.seg_dir[index]
-
         ct = read_image(ct_path)
         seg = read_image(seg_path)
-        
+
         seg = (seg / 125).to(torch.int8)
         
+        if self.augmentation:
+            rand_int = torch.randint(0, 100000, 1)
+            torch.manual_seed(rand_int)
+            ct = self.transform(ct)
+            torch.manual_seed(rand_int)
+            seg = self.transform(seg)
+
         return ct, seg
 
     def __len__(self) -> int:
