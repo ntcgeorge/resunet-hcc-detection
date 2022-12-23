@@ -28,15 +28,15 @@ class PixelWiseCE(nn.Module):
         
         Return: Loss value in float32
         '''
-        batch_size = output.size[0]
+        batch_size = output.shape[0]
         loss = 0.
         for i in range(batch_size):
-            target = target[i]
+            label = target[i].squeeze(0)
             x = output[i]
             # flatten target and x
-            target = target.flatten()
-            x = x.flatten(starts_dim=1).T #need to transpose to adapt to the shape of target
-            loss += self.loss_func(x, target)
+            label = label.flatten()
+            x = x.flatten(start_dim=1).T #need to transpose to adapt to the shape of target
+            loss += self.loss_func(x, label)
         return loss / batch_size
 
 

@@ -5,3 +5,4 @@
 *.jpg
 *.py[cod]
 ^config*
+*.txt

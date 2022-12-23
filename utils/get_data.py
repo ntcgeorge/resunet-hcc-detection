@@ -76,9 +76,9 @@ def load_save(ct_paths, seg_paths, ct_dest, seg_dest) -> None:
         # index = int(re.split("[-.]", name)[1])
         for i in range(len(ct_scan)):
             ct = ct_scan[i][...,np.newaxis]
-            cv2.imwrite(os.path.join(ct_dest, "ct_image%05d.png" % index), ct)
+            cv2.imwrite(os.path.join(ct_dest, "ct_image%05d.jpg" % index), ct)
             seg = seg_scan[i][...,np.newaxis]
-            cv2.imwrite(os.path.join(seg_dest, "ct_seg%05d.png" % index), seg)
+            cv2.imwrite(os.path.join(seg_dest, "ct_seg%05d.jpg" % index), seg)
             index += 1
         # os.remove(cp)
         # os.remove(sp)
