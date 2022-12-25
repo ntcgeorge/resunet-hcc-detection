@@ -13,9 +13,10 @@ class PixelWiseCE(nn.Module):
     '''
     implement pixel-wise flatten crossentropy loss function.
     '''
-    def __init__(self) -> None:
+    def __init__(self, weights=torch.Tensor([1,3,9])) -> None: # set up higher loss weight for label 1 and 2
         super().__init__()
-        self.loss_func = nn.CrossEntropyLoss() # mean loss
+        self.loss_func = nn.CrossEntropyLoss(weights) # mean loss
+        self.weight = weights
 
     def forward(self, output: torch.tensor, target: torch.tensor) -> torch.float32:
         '''
@@ -38,5 +39,3 @@ class PixelWiseCE(nn.Module):
             x = x.flatten(start_dim=1).T #need to transpose to adapt to the shape of target
             loss += self.loss_func(x, label)
         return loss / batch_size
-
-

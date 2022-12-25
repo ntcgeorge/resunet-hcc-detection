@@ -10,7 +10,7 @@ from torchvision import transforms
 import numpy as np
 from glob import glob
 import random
-
+from .util import *
 
 # hyper paramters
 W = 150
@@ -18,7 +18,7 @@ L = 30
 IMG_LENGTH = 48
 class LiTDataset(Dataset):
 
-    def __init__(self, ct_dir="./data/image", seg_dir="./data/label", augmentation=False) -> None:
+    def __init__(self, ct_dir="./data/image", seg_dir="./data/label", size=[256,256], augmentation=False) -> None:
         self.ct_dir = glob(ct_dir + "/*")
         self.ct_dir.sort()
         self.seg_dir = glob(seg_dir + "/*")
@@ -27,6 +27,7 @@ class LiTDataset(Dataset):
             transforms.RandomHorizontalFlip(0.5),
             transforms.RandomRotation(15)
             ])
+        self.preprocessing = transforms.Resize(size)
         self.augmentation = augmentation
     
     def __getitem__(self, index):
@@ -35,11 +36,13 @@ class LiTDataset(Dataset):
         seg_path = self.seg_dir[index]
         ct = read_image(ct_path)
         seg = read_image(seg_path)
-
+        ct = self.preprocessing(ct)
+        seg = self.preprocessing(seg)
         seg = (seg / 125).to(torch.int8)
-        
+        assert torch.unique(seg).shape[0] <= 3
+
         if self.augmentation:
-            rand_int = torch.randint(0, 100000, 1)
+            rand_int = torch.randint(0, 100000, (1,))
             torch.manual_seed(rand_int)
             ct = self.transform(ct)
             torch.manual_seed(rand_int)
@@ -47,5 +50,5 @@ class LiTDataset(Dataset):
 
         return ct, seg
 
-    def __len__(self) -> int:
-        return len(self.ct_dir)
+    def __len__(self):
+        return len(ct_dir)

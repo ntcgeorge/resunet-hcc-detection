@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from typing import *
-from torchmetrics import JaccardIndex
+from torchmetrics import JaccardIndex, Precision, Dice
 
 class SegAccuracy():
     def __init__(self, pred: torch.Tensor, truth: torch.Tensor) -> None:
@@ -16,9 +16,11 @@ class SegAccuracy():
             truth: the ground truth of the prediction, the shape is (B, 1, H, W) whose pixel
             enumerating in the range(classes_num) represent the label of the local pixel
         '''
-        self.pred = pred
-        self.truth = truth
-        self.pred_argmax = torch.argmax(pred, 1, keepdim=True) # (B, 1, H, W)
+        self.pred = pred.cpu()
+        # print("pred dtype is: ", self.pred.dtype, "shape: ", self.pred.shape)
+        self.truth = truth.cpu()
+        # print("truth dtype is: ", self.truth.dtype, "shape: ", self.truth.shape)
+        self.pred_argmax = torch.argmax(self.pred, 1, keepdim=True) # (B, 1, H, W)
         
     def cal_normal_acc(self) -> float:
         '''
@@ -31,7 +33,7 @@ class SegAccuracy():
         assert  acc >= 0, f"accuracy {acc} is negative!"
         return acc
     
-    def cal_weighted_acc(self, weights: dict[str, float]) -> float:
+    def cal_weighted_acc(self, weights) -> float:
         '''
         Calculate weighted accuracy, the accuracy weights differently as weights parameter
         indicates. The larger the weight, the more accurate is for a single correctly classified label.
@@ -74,3 +76,7 @@ class SegAccuracy():
         '''
         jaccard = JaccardIndex(task="multiclass", num_classes=3)
         return jaccard(self.pred_argmax, self.truth).item()
+    
+    def cal_precision(self):
+        precision = Precision(task="multiclass", average='macro', num_classes=3)
+        return precision(self.pred_argmax, self.truth).item()
