@@ -64,8 +64,8 @@ def load_save(ct_paths, seg_paths, ct_dest, seg_dest) -> None:
             seg = seg_scan[i][...,np.newaxis]
             cv2.imwrite(os.path.join(seg_dest, "ct_seg%05d.png" % index), seg)
             index += 1
-        os.remove(cp)
-        os.remove(sp)
+        # os.remove(cp)
+        # os.remove(sp)
         print("reloaded: " + cp)
         
 def run():

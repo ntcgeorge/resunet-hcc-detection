@@ -44,7 +44,7 @@ def swap_chan(array:np.array): #shape(c, 512, 512)
     n_dim = array.ndim
     if n_dim != 3:
         raise ValueError("the input dimension should be 3")
-    return np.transpose(array, (2,1,0))
+    return np.transpose(array, (2,0,1))
 
 def windowed(arr:np.array, mode:str, w=150, l=30):
     if mode == 'ct':
@@ -63,6 +63,6 @@ def get_local_data(path:str):
     file = Image.open(path)
     image = np.asarray(file)
     image = windowed(image, mode="ct")
-    
+
 
     
