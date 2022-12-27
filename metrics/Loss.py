@@ -6,10 +6,10 @@
 
 import torch.nn as nn
 import torch
-# from torchmetrics import *
+from torchmetrics import Dice
 
 
-class PixelWiseCE(nn.Module):
+class PixelWiseDiceCE(nn.Module):
     '''
     implement pixel-wise flatten crossentropy loss function.
     '''
@@ -17,6 +17,7 @@ class PixelWiseCE(nn.Module):
         super().__init__()
         self.loss_func = nn.CrossEntropyLoss(weights) # mean loss
         self.weight = weights
+        self.dice = Dice(average="micro", num_classes=3)
 
     def forward(self, output: torch.tensor, target: torch.tensor) -> torch.float32:
         '''
@@ -30,12 +31,15 @@ class PixelWiseCE(nn.Module):
         Return: Loss value in float32
         '''
         batch_size = output.shape[0]
-        loss = 0.
+        ce_loss = 0.
         for i in range(batch_size):
             label = target[i].squeeze(0)
             x = output[i]
             # flatten target and x
             label = label.flatten()
             x = x.flatten(start_dim=1).T #need to transpose to adapt to the shape of target
-            loss += self.loss_func(x, label)
-        return loss / batch_size
+            ce_loss += self.loss_func(x, label)
+
+        ce_loss = ce_loss / batch_size
+        dice_coe = self.dice(output, target)
+        return ce_loss + (1 - dice_coe)

@@ -51,4 +51,4 @@ class LiTDataset(Dataset):
         return ct, seg
 
     def __len__(self):
-        return len(ct_dir)
+        return len(self.ct_dir)

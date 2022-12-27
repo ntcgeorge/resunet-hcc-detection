@@ -49,8 +49,8 @@ def swap_chan(array:np.array): #shape(c, 512, 512)
 def windowed(arr:np.array, mode:str, w=150, l=30):
     if mode == 'ct':
         px = arr
-        px_min = l - w//2
-        px_max = l + w//2
+        px_min = 0
+        px_max = 255
         px[px<px_min] = px_min
         px[px>px_max] = px_max
         return (px - px_min) * 255. / (px_max - px_min) 
