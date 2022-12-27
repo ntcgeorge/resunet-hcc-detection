@@ -13,7 +13,7 @@ import cv2
 import nibabel as nib
 import tqdm
 from torchvision.utils import save_image
-from .util import *
+from util import *
 
 def read_nii(filepath):
     '''

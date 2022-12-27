@@ -4,7 +4,7 @@ from typing import *
 from torchmetrics import JaccardIndex, Precision, Dice
 
 class SegAccuracy():
-    def __init__(self, pred: torch.Tensor, truth: torch.Tensor) -> None:
+    def __init__(self, pred: torch.Tensor, truth: torch.Tensor, weights) -> None:
         '''
         The class provides a series of metrics for measuring the accuracy of
         segmentation.
@@ -21,7 +21,9 @@ class SegAccuracy():
         self.truth = truth.cpu()
         # print("truth dtype is: ", self.truth.dtype, "shape: ", self.truth.shape)
         self.pred_argmax = torch.argmax(self.pred, 1, keepdim=True) # (B, 1, H, W)
-        
+        self.dice = Dice(average="micro", num_classes=3)
+        self.weights = weights
+
     def cal_normal_acc(self) -> float:
         '''
         Calculate the normal accuracy by measuring the overlapping rate with ground truth.
@@ -44,17 +46,18 @@ class SegAccuracy():
             weights: weights indicats the significance of different labels
         '''
         #unpack the dict
-        w_0 = weights["0"]
-        w_1 = weights["1"]
-        w_2 = weights["2"]
+        w_0 = self.weights["0"]
+        w_1 = self.weights["1"]
+        w_2 = self.weights["2"]
         
         w = [w_0, w_1, w_2]
-        w_mat = self.truth.apply_(lambda x : w[int(x)])
-        oh_truth = torch.where(self.truth > 0, 1, 0)
-        pred_weight = w_mat * (self.pred_argmax == self.truth).type(torch.float32)
+        w_mat = torch.where(self.truth == 0, w[0], self.truth)
+        w_mat = torch.where(w_mat == 1, w[1], w_mat)
+        w_mat = torch.where(w_mat == 2, w[2], w_mat)
+
+        pred_weight = w_mat * (self.pred_argmax != self.truth).type(torch.float32)
         pred_sum = pred_weight.sum().item()
-        truth_weight = w_mat * oh_truth
-        truth_sum = truth_weight.sum().item()
+        truth_sum = w_mat.sum().item()
         acc = pred_sum / truth_sum
         assert acc <= 1 , f"accuracy {acc} excess 1!"
         assert  acc >= 0, f"accuracy {acc} is negative!"
@@ -65,11 +68,9 @@ class SegAccuracy():
         Return
             dice coefficient, the index is based on the overlapping area to union area ratio.
         '''
-        intersection = (self.pred_argmax == self.truth).type(torch.float32).sum()
-        union = (self.pred_argmax != 0).sum() + (self.truth != 0).sum()
-        
-        return (4 / 3 * intersection / union).item()
-    
+        dice_coe = self.dice(self.pred, self.truth).item()
+        return dice_coe
+
     def cal_jaccard_index(self) -> float:
         '''
         Return Jaccard Index between two images
