@@ -35,7 +35,7 @@ class SegAccuracy():
         assert  acc >= 0, f"accuracy {acc} is negative!"
         return acc
     
-    def cal_weighted_acc(self, weights) -> float:
+    def cal_weighted_acc(self) -> float:
         '''
         Calculate weighted accuracy, the accuracy weights differently as weights parameter
         indicates. The larger the weight, the more accurate is for a single correctly classified label.
