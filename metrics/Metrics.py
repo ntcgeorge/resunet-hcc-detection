@@ -18,7 +18,7 @@ class SegAccuracy():
         '''
         self.pred = pred.cpu()
         # print("pred dtype is: ", self.pred.dtype, "shape: ", self.pred.shape)
-        self.truth = truth.cpu()
+        self.truth = truth.cpu().type(torch.uint8)
         # print("truth dtype is: ", self.truth.dtype, "shape: ", self.truth.shape)
         self.pred_argmax = torch.argmax(self.pred, 1, keepdim=True) # (B, 1, H, W)
         self.dice = Dice(average="micro", num_classes=3)
