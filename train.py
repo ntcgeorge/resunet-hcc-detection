@@ -24,6 +24,7 @@ train_ds, test_ds = random_split(ds, [0.8,0.2], generator=torch.Generator().manu
 train_dl = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
 test_dl = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
 
+# release the memory cache
 gc.collect()
 torch.cuda.empty_cache()
 #hyperparameter
@@ -37,7 +38,7 @@ LEARNING_RATE = 1e-4
 net = ResUnet(1,3)
 net = torch.nn.DataParallel(net).cuda()
 
-#define loss function
+# define loss function
 loss_func = PixelWiseDiceCE(weights=torch.Tensor([1,3,9])) # set up weights for each label
 loss_func = torch.nn.DataParallel(loss_func).cuda()
 
