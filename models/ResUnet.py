@@ -61,7 +61,3 @@ class ResUnet(nn.Module):
         output = self.output_layer(x10)
 
         return output
-        
-        
-        
-        
