@@ -82,5 +82,20 @@ def run():
     
 
 if __name__ == "__main__":
+    ID = ["1-TzpAD9JjLl1getsqKrWpSzgeIzqSQ1f", "1FHg-pTTO5Q1ytAUo1KKJHjCiW6oX3lDj"]
+
+    for i, id in enumerate(ID):
+        if not os.path.isdir("./data"):
+            os.mkdir("./data")
+        url = f'https://drive.google.com/uc?id={id}'
+
+        output = f'./data/Litpart{i+1}.zip'
+        gdown.download(url, output, quiet=False)
+
+        with zipfile.ZipFile(output, 'r') as zip_ref:
+            zip_ref.extractall(r'./data')
+        os.remove(output)
+        
+    os.rename("./data/segmentations", "./data/seg")
     print("executing script")
     run()
