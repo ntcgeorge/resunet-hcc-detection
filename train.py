@@ -3,7 +3,7 @@ from models.ResUnet import ResUnet
 from metrics.Loss import PixelWiseDiceCE
 from utils.util import display
 from metrics.Metrics import SegAccuracy
-
+import os
 import numpy as np
 import torch
 from torch.utils.data import random_split, DataLoader
@@ -17,7 +17,7 @@ ALPHA = 0.33
 LEARNING_RATE = 1e-4
 EPOCH = 10
 BATCH_SIZE = 12
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 # Define dataset and instanitiate DataLoader
 ds = LiTDataset(augmentation=True)
 train_ds, test_ds = random_split(ds, [0.8,0.2], generator=torch.Generator().manual_seed(55))
@@ -69,16 +69,16 @@ for epoch in range(EPOCH):
         opt.step()
         if step % 100 == 0:
             with torch.no_grad():
-                acc = SegAccuracy(out, seg)
+                acc = SegAccuracy(out, seg, WEIGHTS)
                 dice = acc.cal_dice_coefficient()
                 prec = acc.cal_precision()
-                weighted_acc =acc.cal_weighted_acc(WEIGHTS)
+                weighted_acc =acc.cal_weighted_acc()
                 normal_acc = acc.cal_normal_acc()
                 # jaccard = acc.cal_jaccard_index()
                 print('step:{}, loss: {:.3f}, precision:{:.3f}, dice:{:.3f}, normal_acc:{:.3f}, weighted_acc:{:.3f}, step time:{:.3f} min'
                     .format(step, loss, prec, dice, normal_acc, weighted_acc, (time() - step_start) / 60))
                 # display
-                display(ct, out, seg)
+                # display(ct, out, seg)
                 torch.save(net.state_dict(), './checkpoint/net{}-{:.3f}.pth'.format(epoch, loss))
 
     with torch.no_grad():
